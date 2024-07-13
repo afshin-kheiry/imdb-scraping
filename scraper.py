@@ -10,9 +10,95 @@ from selenium.webdriver.firefox.options import Options
 from bs4 import BeautifulSoup
 
 
-class ImdbMovieScrapper:
-    def __init__(self) -> None:
-        self.base_url = "https://www.imdb.com/search/title/"
+class GetDataFromSourceMixin:
+    main_div_css_selector = ".sc-978e9339-1"
+
+    @staticmethod
+    def get_rating_votes(page_source):
+        rating_votes_css_selector = "sc-eb51e184-3 gUihYJ"
+        rating_el = page_source.find("div", rating_votes_css_selector)
+        rating_votes = rating_el.get_text(separator=" ", strip=True)
+        if rating_votes[-1] == "K":
+            rating_votes = float(rating_votes[:-1]) * 1000
+        elif rating_votes[-1] == "M":
+            rating_votes = float(rating_votes[:-1]) * 1000000
+        return int(rating_votes)
+
+    @staticmethod
+    def get_title(page_source: BeautifulSoup):
+        title_css_selector = ".hero__primary-text"
+        title_span = page_source.select_one(title_css_selector)
+        return title_span.get_text()
+
+    def get_rating(self, page_source):
+        rating_css_selector = "div.sc-3a4309f8-0:nth-child(1) > div:nth-child(1) > div:nth-child(1) > a:nth-child(2) > span:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > span:nth-child(1)"
+        rating_div = page_source.select_one(rating_css_selector)
+        return float(rating_div.get_text(separator=" ", strip=True))
+
+    @staticmethod
+    def get_top_cast(page_source):
+        top_cast_section = page_source.find(attrs={
+            "cel_widget_id": "StaticFeature_Cast"
+        })
+        if not top_cast_section:
+            return []
+        name_links = top_cast_section.find_all("a", class_="sc-bfec09a1-1 gCQkeh")
+        names = [
+            name_link.get_text(separator=" ", strip=True)
+            for name_link in name_links
+        ]
+        return names
+
+    @staticmethod
+    def get_countries(page_source: BeautifulSoup):
+        country_section = page_source.find(attrs={
+            "data-testid": "title-details-origin"
+        })
+        if not country_section:
+            return []
+        countries_links = country_section.find_all("a")
+        countries = [
+            country_link.get_text(separator=" ", strip=True)
+            for country_link in countries_links
+        ]
+        return countries
+
+    @staticmethod
+    def get_languages(page_source: BeautifulSoup):
+        language_section = page_source.find(attrs={
+            "data-testid": "title-details-languages"
+        })
+        if not language_section:
+            return []
+        languages_links = language_section.find_all("a")
+        languages = [
+            language_link.get_text(separator=" ", strip=True)
+            for language_link in languages_links
+        ]
+        return languages
+
+    @staticmethod
+    def get_similar(page_source: BeautifulSoup):
+        similar_section = page_source.find(attrs={
+            "cel_widget_id": "StaticFeature_MoreLikeThis"
+        })
+        if not similar_section:
+            return []
+        similar_parent_div = similar_section.find("div", class_="ipc-sub-grid ipc-sub-grid--page-span-2 ipc-sub-grid--nowrap ipc-shoveler__grid")
+        similar_child_divs = similar_parent_div.find_all("div", recursive=False)
+        similar_spans = [
+            similar_div.select_one("a:nth-child(3) > span:nth-child(1)")
+            for similar_div in similar_child_divs
+        ]
+        similars = [
+            similar_span.get_text(separator=" ", strip=True)
+            for similar_span in similar_spans
+        ]
+        return similars
+
+
+class ImdbMovieScrapper(GetDataFromSourceMixin):
+    def __init__(self, title_type="feature", release_data="2010-01-01") -> None:
         option = Options()
         option.profile = '/home/mate/snap/firefox/common/.mozilla/firefox/fb0aec67.default'
         service = Service('/snap/bin/geckodriver')
