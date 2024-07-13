@@ -177,9 +177,8 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
             page_source = self.scape_url(full_url)
             if page_source:
                 page_source = BeautifulSoup(page_source, 'html.parser')
-                print(page_source.title.get_text())
-        print("List of links:", hrefs)
-
+                movies_data.append(self.extract_data(page_source))
+        return movies_data
 
 if "__main__" == __name__:
     ImdbMovieScrapper().run()
