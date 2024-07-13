@@ -110,8 +110,8 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
 
     def get_url(self):
         _sort_query_string = "sort=release_date,asc"
-        return f"{self.base_url}?title_type={title}&release_date={release_date}&{_sort_query_string}"
-
+        return f"{self.base_url}?title_type={self.title_type}&release_date=" \
+               f"{self.release_date}&{_sort_query_string}&user_rating=4,"
 
     def load_all_movies(self):
         time.sleep(5)
