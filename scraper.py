@@ -1,5 +1,6 @@
 import time
 import requests
+from decouple import config
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -100,8 +101,8 @@ class GetDataFromSourceMixin:
 class ImdbMovieScrapper(GetDataFromSourceMixin):
     def __init__(self, title_type="feature", release_data="2010-01-01") -> None:
         option = Options()
-        option.profile = '/home/mate/snap/firefox/common/.mozilla/firefox/fb0aec67.default'
-        service = Service('/snap/bin/geckodriver')
+        option.profile = config("PROFILE_PATH")
+        service = Service(config("DRIVER_PATH"))
         self.driver = webdriver.Firefox(service=service, options=option)
     
     
