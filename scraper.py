@@ -170,7 +170,8 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
         ul_css_selector = 'ipc-metadata-list ipc-metadata-list--dividers-between sc-748571c8-0 jmWPOZ detailed-list-view ipc-metadata-list--base'
         ul_element = page_source.find('ul', class_=ul_css_selector)
         links = ul_element.find_all('a')
-        hrefs = [link.get('href') for link in links]
+        hrefs = {link.get('href') for link in links}
+        movies_data = []
         for href in hrefs:
             full_url = requests.compat.urljoin(self.base_url, href)
             page_source = self.scape_url(full_url)
