@@ -126,13 +126,14 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
             time.sleep(5)
             button.click()
 
+    def save_data(self, data):
+        pass
+
     def run(self):
         self.driver.get(self.get_url())
         self.load_all_movies()
         data = self.get_movies_data()
-        cleaned_data = self.validate_data(data)
-        # augmented_data = self.augment_data(cleaned_data)
-        self.save_data()
+        self.save_data(data)
 
     @staticmethod
     def scape_url(url):
