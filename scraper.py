@@ -1,5 +1,6 @@
 import time
 import requests
+from datetime import datetime
 from decouple import config
 
 from selenium import webdriver
