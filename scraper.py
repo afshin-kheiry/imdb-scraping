@@ -104,9 +104,11 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
         option.profile = config("PROFILE_PATH")
         service = Service(config("DRIVER_PATH"))
         self.driver = webdriver.Firefox(service=service, options=option)
-    
-    
-    def get_url(self, title="feature", release_date="2010-01-01"):
+        self.base_url = "https://www.imdb.com/search/title/"
+        self.release_date = release_data
+        self.title_type = title_type
+
+    def get_url(self):
         _sort_query_string = "sort=release_date,asc"
         return f"{self.base_url}?title_type={title}&release_date={release_date}&{_sort_query_string}"
 
