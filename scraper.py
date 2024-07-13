@@ -114,17 +114,16 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
                f"{self.release_date}&{_sort_query_string}&user_rating=4,"
 
     def load_all_movies(self):
-        time.sleep(5)
         load_more_data_css_selector = 'button.ipc-btn.ipc-btn--single-padding.ipc-btn--center-align-content.ipc-btn--default-height.ipc-btn--core-base.ipc-btn--theme-base.ipc-btn--on-accent2.ipc-btn--rounded.ipc-text-button.ipc-see-more__button'
         while True:
+            time.sleep(5)
             elements = self.driver.find_elements(By.CSS_SELECTOR, load_more_data_css_selector)
-            print(elements)
             if not elements:
                 break
             wait = WebDriverWait(self.driver, 10)
             button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, load_more_data_css_selector)))
             self.driver.execute_script("arguments[0].scrollIntoView(true);", button)
-            time.sleep(2)
+            time.sleep(5)
             button.click()
 
     def run(self):
