@@ -147,6 +147,22 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
             print(f"Failed to fetch {url}. Status code: {response.status_code}")
             return None
 
+    def extract_data(self, page_source):
+        extracted_data = {
+            "title": self.get_title(page_source),
+            "rating": self.get_rating(page_source),
+            "rating_votes": self.get_rating_votes(page_source),
+            "top_casts": self.get_top_cast(page_source),
+            "similars": self.get_similar(page_source),
+            "countries": self.get_countries(page_source),
+            "languages": self.get_languages(page_source),
+            "title_type": self.title_type,
+            "release_date": datetime.strptime(
+                self.release_date, "%Y-%m-%d").date()
+        }
+        # TODO augment_data
+        return extracted_data
+
     def get_movies_data(self):
         page_source = self.driver.page_source
         page_source = BeautifulSoup(page_source, 'html.parser')
