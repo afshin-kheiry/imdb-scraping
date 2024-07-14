@@ -135,8 +135,83 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
             time.sleep(5)
             button.click()
 
-    def save_data(self, data):
-        pass
+    @staticmethod
+    def save_data(data):
+        cached_countries = {
+            country.name: country
+            for country in session.query(Country).all()
+        }
+        cached_languages = {
+            language.name: language
+            for language in session.query(Language).all()
+        }
+        cached_casts = {
+            cast.name: cast
+            for cast in session.query(Cast).all()
+        }
+        cached_movies = {
+            movie.title: movie
+            for movie in session.query(Movie).all()
+        }
+
+        for movie in data:
+            # Handling countries
+            _countries = []
+            for country_name in movie.pop("countries"):
+                if country_name in cached_countries:
+                    country = cached_countries[country_name]
+                else:
+                    country = Country(name=country_name)
+                    session.add(country)
+                    cached_countries[country_name] = country
+                _countries.append(country)
+
+            # Handling languages
+            _languages = []
+            for language_name in movie.pop("languages"):
+                if language_name in cached_languages:
+                    language = cached_languages[language_name]
+                else:
+                    language = Language(name=language_name)
+                    session.add(language)
+                    cached_languages[language_name] = language
+                _languages.append(language)
+
+            # Handling casts
+            _casts = []
+            for cast_name in movie.pop("top_casts"):
+                if cast_name in cached_casts:
+                    cast = cached_casts[cast_name]
+                else:
+                    cast = Cast(name=cast_name)
+                    session.add(cast)
+                    cached_casts[cast_name] = cast
+                _casts.append(cast)
+
+            # Handling similar movies
+            _similar_movies = []
+            for similar_movie_title in movie.pop("similars"):
+                if similar_movie_title in cached_movies:
+                    similar_movie = cached_movies[similar_movie_title]
+                else:
+                    similar_movie = Movie(
+                        title=similar_movie_title,
+                        title_type="featured"
+                    )
+                    session.add(similar_movie)
+                    cached_movies[similar_movie_title] = similar_movie
+                if similar_movie not in _similar_movies:
+                    _similar_movies.append(similar_movie)
+
+            _movie = Movie(**movie)
+            session.add(_movie)
+            cached_movies[movie["title"]] = _movie
+
+            _movie.countries.extend(_countries)
+            _movie.languages.extend(_languages)
+            _movie.casts.extend(_casts)
+            _movie.similar_movies.extend(_similar_movies)
+        session.commit()
 
     def run(self):
         self.driver.get(self.get_url())
