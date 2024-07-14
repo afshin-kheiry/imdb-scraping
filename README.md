@@ -1,8 +1,21 @@
 # imdb-scraping
 serving scraped data from imdb with fastapi
 
-**technologies:**
-- fastapi
-- postgresql
-- docker
-- BeautifulSoup
+## Installation
+```
+python -m venv venv
+. venv/bin/activate
+pip3 install -r requirements.txt
+cd base
+python ../scraper/scraping.py
+uvicorn main:app --reload
+```
+
+you also need .env with following keys in it:
+```
+DRIVER_PATH
+PROFILE_PATH
+SQLALCHEMY_DATABASE_URL
+SECRET_KEY
+```
+
