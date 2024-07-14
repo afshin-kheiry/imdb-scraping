@@ -11,14 +11,19 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from bs4 import BeautifulSoup
 
+from movies.models import Country, Movie, Cast, Language
+from base.database import SessionLocal
+from movies.constants import test_data, Selectors
+
+session = SessionLocal()
+
 
 class GetDataFromSourceMixin:
     main_div_css_selector = ".sc-978e9339-1"
 
     @staticmethod
     def get_rating_votes(page_source):
-        rating_votes_css_selector = "sc-eb51e184-3 gUihYJ"
-        rating_el = page_source.find("div", rating_votes_css_selector)
+        rating_el = page_source.find("div", Selectors.rating_votes_css_selector)
         rating_votes = rating_el.get_text(separator=" ", strip=True)
         if rating_votes[-1] == "K":
             rating_votes = float(rating_votes[:-1]) * 1000
@@ -28,13 +33,12 @@ class GetDataFromSourceMixin:
 
     @staticmethod
     def get_title(page_source: BeautifulSoup):
-        title_css_selector = ".hero__primary-text"
-        title_span = page_source.select_one(title_css_selector)
+        title_span = page_source.select_one(Selectors.title_css_selector)
         return title_span.get_text()
 
-    def get_rating(self, page_source):
-        rating_css_selector = "div.sc-3a4309f8-0:nth-child(1) > div:nth-child(1) > div:nth-child(1) > a:nth-child(2) > span:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > span:nth-child(1)"
-        rating_div = page_source.select_one(rating_css_selector)
+    @staticmethod
+    def get_rating(page_source):
+        rating_div = page_source.select_one(Selectors.rating_css_selector)
         return float(rating_div.get_text(separator=" ", strip=True))
 
     @staticmethod
@@ -44,7 +48,10 @@ class GetDataFromSourceMixin:
         })
         if not top_cast_section:
             return []
-        name_links = top_cast_section.find_all("a", class_="sc-bfec09a1-1 gCQkeh")
+        name_links = top_cast_section.find_all(
+            "a",
+            class_=Selectors.top_cast_a_css_selector
+        )
         names = [
             name_link.get_text(separator=" ", strip=True)
             for name_link in name_links
@@ -86,10 +93,13 @@ class GetDataFromSourceMixin:
         })
         if not similar_section:
             return []
-        similar_parent_div = similar_section.find("div", class_="ipc-sub-grid ipc-sub-grid--page-span-2 ipc-sub-grid--nowrap ipc-shoveler__grid")
+        similar_parent_div = similar_section.find(
+            "div",
+            class_=Selectors.similar_parent_div_css_selector
+        )
         similar_child_divs = similar_parent_div.find_all("div", recursive=False)
         similar_spans = [
-            similar_div.select_one("a:nth-child(3) > span:nth-child(1)")
+            similar_div.select_one(Selectors.similar_spans_css_selector)
             for similar_div in similar_child_divs
         ]
         similars = [
@@ -167,8 +177,10 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
     def get_movies_data(self):
         page_source = self.driver.page_source
         page_source = BeautifulSoup(page_source, 'html.parser')
-        ul_css_selector = 'ipc-metadata-list ipc-metadata-list--dividers-between sc-748571c8-0 jmWPOZ detailed-list-view ipc-metadata-list--base'
-        ul_element = page_source.find('ul', class_=ul_css_selector)
+        ul_element = page_source.find(
+            'ul',
+            class_=Selectors.main_page_ul_css_selector
+        )
         links = ul_element.find_all('a')
         hrefs = {link.get('href') for link in links}
         movies_data = []
@@ -179,6 +191,7 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
                 page_source = BeautifulSoup(page_source, 'html.parser')
                 movies_data.append(self.extract_data(page_source))
         return movies_data
+
 
 if "__main__" == __name__:
     ImdbMovieScrapper().run()
