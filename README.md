@@ -7,7 +7,7 @@ python -m venv venv
 . venv/bin/activate
 pip3 install -r requirements.txt
 cd base
-python ../scraper/scraping.py
+python ../movies/scraper.py
 uvicorn main:app --reload
 ```
 
