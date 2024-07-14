@@ -19,8 +19,6 @@ session = SessionLocal()
 
 
 class GetDataFromSourceMixin:
-    main_div_css_selector = ".sc-978e9339-1"
-
     @staticmethod
     def get_rating_votes(page_source):
         rating_el = page_source.find("div", Selectors.rating_votes_css_selector)
