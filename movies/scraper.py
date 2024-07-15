@@ -1,5 +1,6 @@
 import time
 import requests
+import logging
 from datetime import datetime
 from decouple import config
 
@@ -13,8 +14,9 @@ from bs4 import BeautifulSoup
 
 from movies.models import Country, Movie, Cast, Language
 from base.database import SessionLocal
-from movies.constants import test_data, Selectors
+from movies.constants import Selectors
 
+logger = logging.getLogger(__name__)
 session = SessionLocal()
 
 
@@ -123,15 +125,20 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
                f"{self.release_date}&{_sort_query_string}&user_rating=4,"
 
     def load_all_movies(self):
-        load_more_data_css_selector = 'button.ipc-btn.ipc-btn--single-padding.ipc-btn--center-align-content.ipc-btn--default-height.ipc-btn--core-base.ipc-btn--theme-base.ipc-btn--on-accent2.ipc-btn--rounded.ipc-text-button.ipc-see-more__button'
+        logger.debug("Loading all movies")
         while True:
             time.sleep(5)
-            elements = self.driver.find_elements(By.CSS_SELECTOR, load_more_data_css_selector)
+            elements = self.driver.find_elements(
+                By.CSS_SELECTOR,
+                Selectors.load_more_data_css_selector)
             if not elements:
+                logger.debug("All movies been loaded")
                 break
             wait = WebDriverWait(self.driver, 10)
-            button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, load_more_data_css_selector)))
-            self.driver.execute_script("arguments[0].scrollIntoView(true);", button)
+            button = wait.until(EC.element_to_be_clickable(
+                (By.CSS_SELECTOR, Selectors.load_more_data_css_selector)))
+            self.driver.execute_script(
+                "arguments[0].scrollIntoView(true);", button)
             time.sleep(5)
             button.click()
 
@@ -257,12 +264,20 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
         links = ul_element.find_all('a')
         hrefs = {link.get('href') for link in links}
         movies_data = []
+        logger.debug(f"{len(hrefs)} movies has been loaded")
+        count = 0
         for href in hrefs:
             full_url = requests.compat.urljoin(self.base_url, href)
             page_source = self.scape_url(full_url)
             if page_source:
                 page_source = BeautifulSoup(page_source, 'html.parser')
                 movies_data.append(self.extract_data(page_source))
+                count += 1
+                print(
+                    f"{count} movies data extracted successfully",
+                    end="\r",
+                    flush=True
+                )
         return movies_data
 
 
