@@ -111,10 +111,13 @@ class GetDataFromSourceMixin:
 
 class ImdbMovieScrapper(GetDataFromSourceMixin):
     def __init__(self, title_type="feature", release_data="2010-01-01") -> None:
-        option = Options()
-        option.profile = config("PROFILE_PATH")
-        service = Service(config("DRIVER_PATH"))
-        self.driver = webdriver.Firefox(service=service, options=option)
+        options = webdriver.FirefoxOptions()
+        options.add_argument("--no-sandbox")
+        options.add_argument('--disable-dev-shm-usage')
+        self.driver = webdriver.Remote(
+            command_executor="http://firefox:4444",
+            options=options
+        )
         self.base_url = "https://www.imdb.com/search/title/"
         self.release_date = release_data
         self.title_type = title_type
