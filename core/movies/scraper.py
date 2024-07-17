@@ -2,19 +2,16 @@ import time
 import requests
 import logging
 from datetime import datetime
-from decouple import config
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.firefox.options import Options
 from bs4 import BeautifulSoup
 
-from movies.models import Country, Movie, Cast, Language
-from base.database import SessionLocal
-from movies.constants import Selectors
+from core.movies.models import Country, Movie, Cast, Language
+from core.base.database import SessionLocal
+from core.movies.constants import Selectors
 
 logger = logging.getLogger(__name__)
 session = SessionLocal()
