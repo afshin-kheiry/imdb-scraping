@@ -123,14 +123,12 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
                f"{self.release_date}&{_sort_query_string}&user_rating=4,"
 
     def load_all_movies(self):
-        logger.debug("Loading all movies")
         while True:
             time.sleep(5)
             elements = self.driver.find_elements(
                 By.CSS_SELECTOR,
                 Selectors.load_more_data_css_selector)
             if not elements:
-                logger.debug("All movies been loaded")
                 break
             wait = WebDriverWait(self.driver, 10)
             button = wait.until(EC.element_to_be_clickable(
@@ -220,9 +218,21 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
 
     def run(self):
         self.driver.get(self.get_url())
-        self.load_all_movies()
-        data = self.get_movies_data()
-        self.save_data(data)
+        print("Loading All the movies ...")
+        try:
+            self.load_all_movies()
+        except Exception as e:
+            print(f"got this error:{e} while loading movies")
+        print("All movies has been loaded.")
+        data = list()
+        try:
+            data = self.get_movies_data()
+        except Exception as e:
+            print(f"got this error:{e} while extracting movies")
+        try:
+            self.save_data(data)
+        except Exception as e:
+            print(f"got this error:{e} while saving movies")
 
     @staticmethod
     def scape_url(url):
@@ -262,20 +272,24 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
         links = ul_element.find_all('a')
         hrefs = {link.get('href') for link in links}
         movies_data = []
-        logger.debug(f"{len(hrefs)} movies has been loaded")
+        print(f"{len(hrefs)} movies has been loaded")
         count = 0
         for href in hrefs:
-            full_url = requests.compat.urljoin(self.base_url, href)
-            page_source = self.scape_url(full_url)
-            if page_source:
-                page_source = BeautifulSoup(page_source, 'html.parser')
-                movies_data.append(self.extract_data(page_source))
-                count += 1
-                print(
-                    f"{count} movies data extracted successfully",
-                    end="\r",
-                    flush=True
-                )
+            # extracting movies data
+            try:
+                full_url = requests.compat.urljoin(self.base_url, href)
+                page_source = self.scape_url(full_url)
+                if page_source:
+                    page_source = BeautifulSoup(page_source, 'html.parser')
+                    movies_data.append(self.extract_data(page_source))
+                    count += 1
+                    print(
+                        f"processed: {count} movies data extracted successfully",
+                        end="\r",
+                        flush=True
+                    )
+            except Exception as e:
+                print(f"got this error:{e} during extracting {href} this link.")
         return movies_data
 
 
