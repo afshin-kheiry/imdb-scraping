@@ -1,6 +1,5 @@
 import time
 import requests
-import logging
 from datetime import datetime
 
 from selenium import webdriver
@@ -13,7 +12,6 @@ from core.movies.models import Country, Movie, Cast, Language
 from core.base.database import SessionLocal
 from core.movies.constants import Selectors
 
-logger = logging.getLogger(__name__)
 session = SessionLocal()
 
 
