@@ -20,4 +20,5 @@ you also need .env with following keys in it:
 ```
 SQLALCHEMY_DATABASE_URL
 SECRET_KEY
+OPENAI_API_KEY
 ```
