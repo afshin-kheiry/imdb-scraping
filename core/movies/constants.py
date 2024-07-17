@@ -11,3 +11,4 @@ class Selectors:
     similar_spans_css_selector = "a:nth-child(3) > span:nth-child(1)"
     main_page_ul_css_selector = 'ipc-metadata-list ipc-metadata-list--dividers-between sc-748571c8-0 jmWPOZ detailed-list-view ipc-metadata-list--base'
     load_more_data_css_selector = 'button.ipc-btn.ipc-btn--single-padding.ipc-btn--center-align-content.ipc-btn--default-height.ipc-btn--core-base.ipc-btn--theme-base.ipc-btn--on-accent2.ipc-btn--rounded.ipc-text-button.ipc-see-more__button'
+    description_css_selector = ".sc-2d37a7c7-2"
