@@ -2,17 +2,22 @@ import time
 import requests
 from datetime import datetime, timedelta
 
+from openai import OpenAI
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+from decouple import config
 
-from core.movies.models import Country, Movie, Cast, Language
+from core.movies.models import Country, Movie, Cast, Language, Genre
 from core.base.database import SessionLocal
 from core.movies.constants import Selectors
 
 session = SessionLocal()
+openai = OpenAI(
+  api_key=config('OPENAI_API_KEY')
+)
 
 
 class GetDataFromSourceMixin:
@@ -257,6 +262,28 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
             print(f"Failed to fetch {url}. Status code: {response.status_code}")
             return None
 
+    @staticmethod
+    def generate_genres_and_storyline(title, description):
+        prompt = f"Based on the following movie title and description," \
+                 f"' generate appropriate genres and a storyline:\n\nTitle:" \
+                 f" {title}\nDescription: {description}\n\nGenres:\nStoryline:"
+
+        response = openai.completions.create(
+            model="gpt-3.5-turbo",
+            prompt=prompt,
+            max_tokens=200,
+            n=1,
+            stop=None,
+            temperature=0.7
+        )
+
+        result = response.choices[0].message['content'].strip()
+        genres, storyline = result.split("\nStoryline:")
+        genres = genres.replace("Genres:", "").strip().split(", ")
+        storyline = storyline.strip()
+
+        return genres, storyline
+
     def extract_data(self, page_source):
         extracted_data = {
             "title": self.get_title(page_source),
@@ -271,7 +298,14 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
             "release_date": datetime.strptime(
                 self.release_date, "%Y-%m-%d").date()
         }
-        # TODO augment_data
+        genres, story_line = self.generate_genres_and_storyline(
+            extracted_data.get("title"),
+            extracted_data.get("description")
+        )
+        extracted_data.update({
+            "genres": genres,
+            "story_line": story_line
+        })
         return extracted_data
 
     def get_movies_data(self):
