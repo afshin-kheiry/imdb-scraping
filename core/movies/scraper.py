@@ -127,7 +127,7 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
         )
         self.base_url = "https://www.imdb.com/search/title/"
         movie = session.query(Movie).order_by(Movie.id.desc()).first()
-        if not movie.release_date:
+        if not movie:
             self.release_date = "2010-01-01"
         else:
             self.release_date = str(movie.release_date + timedelta(days=1))
