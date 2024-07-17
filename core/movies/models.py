@@ -25,6 +25,12 @@ movie_cast = Table(
     Column('cast_id', Integer, ForeignKey('cast.id'), primary_key=True)
 )
 
+movie_genre = Table(
+    'movie_genre', Base.metadata,
+    Column('movie_id', Integer, ForeignKey('movie.id'), primary_key=True),
+    Column('genre_id', Integer, ForeignKey('genre.id'), primary_key=True)
+)
+
 similar_movies = Table(
     'similar_movies', Base.metadata,
     Column('movie_id', Integer, ForeignKey('movie.id'), primary_key=True),
@@ -58,6 +64,19 @@ class Language(Base):
     )
 
 
+class Genre(Base):
+    __tablename__ = "genre"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+    movies = relationship(
+        'Movie',
+        secondary=movie_genre,
+        back_populates='genres'
+    )
+
+
 class Country(Base):
     __tablename__ = "country"
 
@@ -77,6 +96,9 @@ class Movie(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String)
     title_type = Column(String)
+    description = Column(String)
+
+    story_line = Column(String, nullable=True)
     rating = Column(Float, nullable=True)
     rating_votes = Column(Integer, nullable=True)
     release_date = Column(Date, nullable=True)
@@ -101,6 +123,11 @@ class Movie(Base):
         primaryjoin=id == similar_movies.c.movie_id,
         secondaryjoin=id == similar_movies.c.similar_movie_id,
         backref='similar_to'
+    )
+    genres = relationship(
+        'Genre',
+        secondary=movie_genre,
+        back_populates='movies'
     )
 
 
