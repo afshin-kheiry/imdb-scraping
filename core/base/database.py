@@ -7,10 +7,10 @@ from sqlalchemy.orm import sessionmaker, Session
 
 from decouple import config
 
-SQLALCHEMY_DATABASE_URL = config("SQLALCHEMY_DATABASE_URL")
+DATABASE_URL = config("DATABASE_URL")
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL
+    DATABASE_URL
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

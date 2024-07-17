@@ -4,7 +4,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from base.database import Base, engine
+from core.base.database import Base, engine
 
 
 movie_country = Table(

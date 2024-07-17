@@ -7,8 +7,8 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
 from decouple import config
 
-from users.models import User
-from base.database import db_dependency
+from core.users.models import User
+from core.base.database import db_dependency
 
 
 router = APIRouter(

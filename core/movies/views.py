@@ -2,10 +2,10 @@ from typing import Union
 
 from fastapi import APIRouter, status
 
-from base.database import db_dependency
-from base.helpers import paginate
-from base.auth import user_dependency
-from movies.models import Cast, Language, Country, Movie
+from core.base.database import db_dependency
+from core.base.helpers import paginate
+from core.base.auth import user_dependency
+from core.movies.models import Cast, Language, Country, Movie
 
 
 router = APIRouter(
