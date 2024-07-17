@@ -160,6 +160,10 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
             country.name: country
             for country in session.query(Country).all()
         }
+        cached_genres = {
+            genre.name: genre
+            for genre in session.query(Genre).all()
+        }
         cached_languages = {
             language.name: language
             for language in session.query(Language).all()
@@ -184,6 +188,17 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
                     session.add(country)
                     cached_countries[country_name] = country
                 _countries.append(country)
+
+            # Handling genres
+            _genres = []
+            for genre_name in movie.pop("genres"):
+                if genre_name in cached_genres:
+                    genre = cached_genres[genre_name]
+                else:
+                    genre = Genre(name=genre_name)
+                    session.add(genre)
+                    cached_genres[genre_name] = genre
+                _genres.append(genre)
 
             # Handling languages
             _languages = []
