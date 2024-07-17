@@ -17,6 +17,13 @@ session = SessionLocal()
 
 class GetDataFromSourceMixin:
     @staticmethod
+    def get_description(page_source):
+        description_span = page_source.select_one(
+            Selectors.description_css_selector
+        )
+        return description_span.get_text()
+
+    @staticmethod
     def get_rating_votes(page_source):
         rating_el = page_source.find("div", Selectors.rating_votes_css_selector)
         rating_votes = rating_el.get_text(separator=" ", strip=True)
@@ -253,6 +260,7 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
     def extract_data(self, page_source):
         extracted_data = {
             "title": self.get_title(page_source),
+            "description": self.get_description(page_source),
             "rating": self.get_rating(page_source),
             "rating_votes": self.get_rating_votes(page_source),
             "top_casts": self.get_top_cast(page_source),
