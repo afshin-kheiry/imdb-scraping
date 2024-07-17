@@ -1,6 +1,6 @@
 import time
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -105,7 +105,7 @@ class GetDataFromSourceMixin:
 
 
 class ImdbMovieScrapper(GetDataFromSourceMixin):
-    def __init__(self, title_type="feature", release_data="2010-01-01") -> None:
+    def __init__(self, title_type="feature") -> None:
         options = webdriver.FirefoxOptions()
         options.add_argument("--no-sandbox")
         options.add_argument('--disable-dev-shm-usage')
@@ -114,7 +114,11 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
             options=options
         )
         self.base_url = "https://www.imdb.com/search/title/"
-        self.release_date = release_data
+        movie = session.query(Movie).order_by(Movie.id.desc()).first()
+        if not movie.release_date:
+            self.release_date = "2010-01-01"
+        else:
+            self.release_date = str(movie.release_date + timedelta(days=1))
         self.title_type = title_type
 
     def get_url(self):
