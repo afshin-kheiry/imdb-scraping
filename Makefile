@@ -1,8 +1,8 @@
 start-project:
-	export PYTHONPATH=/home/app && cd base && uvicorn main:app --reload
+	uvicorn core.base.main:app --reload
 
 start-scraping:
-	export PYTHONPATH=/home/app && cd base && python ../movies/scraper.py
+	export PYTHONPATH=/home/app && python core/movies/scraper.py
 
 quick-start:
 	make initSwarm
