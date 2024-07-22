@@ -121,10 +121,12 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
         options = webdriver.FirefoxOptions()
         options.add_argument("--no-sandbox")
         options.add_argument('--disable-dev-shm-usage')
+        print("getting driver ..")
         self.driver = webdriver.Remote(
             command_executor="http://firefox:4444",
             options=options
         )
+        print("driver is ready")
         self.base_url = "https://www.imdb.com/search/title/"
         movie = session.query(Movie).order_by(Movie.id.desc()).first()
         if not movie:
