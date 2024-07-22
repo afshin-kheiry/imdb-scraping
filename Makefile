@@ -3,7 +3,7 @@ start-project:
 	uvicorn core.base.main:app --host 0.0.0.0 --port 8000 --reload
 
 start-scraping:
-	export PYTHONPATH=/home/app && python core/movies/scraper.py
+	export PYTHONPATH=/home/app && /usr/local/bin/python core/movies/scraper.py
 
 quick-start:
 	make initSwarm
