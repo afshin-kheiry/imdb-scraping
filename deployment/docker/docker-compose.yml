@@ -2,6 +2,8 @@ version: "3.7"
 services:
   db:
     image: "postgres:12-alpine"
+    ports:
+      - 5432:5432
     networks:
       - imdb-movie-network
     volumes:
