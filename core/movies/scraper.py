@@ -318,10 +318,15 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
             "release_date": datetime.strptime(
                 self.release_date, "%Y-%m-%d").date()
         }
-        genres, story_line = self.generate_genres_and_storyline(
-            extracted_data.get("title"),
-            extracted_data.get("description")
-        )
+        try:
+            genres, story_line = self.generate_genres_and_storyline(
+                extracted_data.get("title"),
+                extracted_data.get("description")
+            )
+        except Exception as e:
+            print(f"got this error when trying to generate from ai:\n{e}")
+            genres = []
+            story_line = ""
         extracted_data.update({
             "genres": genres,
             "story_line": story_line
