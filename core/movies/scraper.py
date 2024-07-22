@@ -345,6 +345,7 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
         movies_data = []
         print(f"{len(hrefs)} movies has been loaded")
         count = 0
+        fails = dict()
         for href in hrefs:
             # extracting movies data
             try:
@@ -361,6 +362,8 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
                     )
             except Exception as e:
                 print(f"got this error:{e} during extracting {href} this link.")
+                fails[href] = e
+        print(fails)
         return movies_data
 
 
