@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 
 from fastapi import APIRouter, status
 
@@ -6,6 +6,7 @@ from core.base.database import db_dependency
 from core.base.helpers import paginate
 from core.base.auth import user_dependency
 from core.movies.models import Cast, Language, Country, Movie
+from core.movies.schema import MovieSchema
 
 
 router = APIRouter(
@@ -14,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", status_code=status.HTTP_200_OK)
+@router.get("/", status_code=status.HTTP_200_OK, response_model=List[MovieSchema])
 async def get_movies(
         user: user_dependency,
         db: db_dependency,
