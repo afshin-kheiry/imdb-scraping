@@ -286,20 +286,22 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
                  f"' generate appropriate genres and a storyline:\n\nTitle:" \
                  f" {title}\nDescription: {description}\n\nGenres:\nStoryline:"
 
-        response = openai.completions.create(
+        response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
-            prompt=prompt,
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt}
+            ],
             max_tokens=200,
             n=1,
             stop=None,
             temperature=0.7
         )
 
-        result = response.choices[0].message['content'].strip()
+        result = response.choices[0].message.to_dict()['content'].strip()
         genres, storyline = result.split("\nStoryline:")
         genres = genres.replace("Genres:", "").strip().split(", ")
         storyline = storyline.strip()
-
         return genres, storyline
 
     def extract_data(self, page_source):
