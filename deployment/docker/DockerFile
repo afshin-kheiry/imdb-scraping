@@ -19,6 +19,4 @@ RUN crontab /etc/cron.d/scraper_cron
 
 RUN touch /var/log/cron.log
 
-RUN service cron start
-
 EXPOSE 8000
