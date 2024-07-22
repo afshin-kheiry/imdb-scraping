@@ -158,6 +158,7 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
 
     @staticmethod
     def save_data(data):
+        print(f"{len(data)} movie has been extracted successfully.")
         cached_countries = {
             country.name: country
             for country in session.query(Country).all()
