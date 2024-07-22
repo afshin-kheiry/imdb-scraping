@@ -245,6 +245,7 @@ class ImdbMovieScrapper(GetDataFromSourceMixin):
             cached_movies[movie["title"]] = _movie
 
             _movie.countries.extend(_countries)
+            _movie.genres.extend(_genres)
             _movie.languages.extend(_languages)
             _movie.casts.extend(_casts)
             _movie.similar_movies.extend(_similar_movies)
